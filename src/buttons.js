@@ -1,16 +1,15 @@
 export default [
-  {
-    name: 'Info',
-    set: [
-      {
-        label: 'Get info',
-        command: 'get_info',
-        description: 'send this to recieve information about the robot',
-        variant: 'info',
-      },
-    ],
-  },
-  // TODO: move all the stopButtons into the actual button set
+  // {
+  //   name: 'Info',
+  //   set: [
+  //     {
+  //       label: 'Get info',
+  //       command: 'get_info',
+  //       description: 'send this to recieve information about the robot',
+  //       variant: 'info',
+  //     },
+  //   ],
+  // },
   {
     name: 'Controls',
     set: [

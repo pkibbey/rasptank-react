@@ -14,10 +14,20 @@ const Button = ({
     title={description}
     type="button"
     onMouseDown={() => runCommand(command)}
+    onTouchStart={() => runCommand(command)}
     onMouseUp={() => runCommand(cancelCommand)}
+    onTouchEnd={() => runCommand(cancelCommand)}
     mr={2}
     mb={2}
     variant={variant}
+    sx={{
+      userSelect: 'none',
+      borderRadius: 5,
+      '&:active': {
+        opacity: 0.7,
+        boxShadow: '0 0 5px white',
+      },
+    }}
   >
     {label}
   </ThemeButton>

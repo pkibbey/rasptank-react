@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { Box, Spinner, Text } from 'theme-ui';
-import apiButtons from './apiButtons';
+import buttons from '../buttons';
 import ButtonSet from './ButtonSet';
 import Video from './Video';
 
@@ -16,6 +16,18 @@ const {
 
 const DEFAULT_SPEED = 25; // percentage (0 to 100)
 const INFO_UPDATE_SPEED = 10000; // fetch info every 10 seconds
+const STOP_INTERVAL = 2000;
+
+const COMMANDS = buttons.reduce((commandSet, item) => {
+  const cancelCommands = item.set.reduce((a, b) => {
+    if (b.cancelCommand) {
+      a.push(b.cancelCommand);
+    }
+    return a;
+  }, []);
+  cancelCommands.forEach((c) => commandSet.add(c));
+  return commandSet;
+}, new Set());
 
 function UsageData({ data }) {
   return (
@@ -74,17 +86,23 @@ function App() {
     }
   }, [lastJsonMessage]);
 
+  useEffect(() => {
+    // Send the stop commands every so often, in case a message is lost
+    function sendStopCommands() {
+      COMMANDS.forEach((command) => sendMessage(command));
+      // TODO: make it so that it doesn't fire when a control is being pressed
+    }
+
+    const timer = setInterval(sendStopCommands, STOP_INTERVAL);
+    return () => clearInterval(timer);
+  }, []);
+
   // If we are not not connected, load the waiting graphic
   if (readyState !== ReadyState.OPEN && readyState !== ReadyState.CLOSING) {
     return (
       <Box
         p={3}
-        sx={{
-          display: 'grid',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-        }}
+        sx={{ display: 'grid', alignItems: 'center', justifyContent: 'center' }}
       >
         <Spinner />
       </Box>
@@ -96,7 +114,7 @@ function App() {
       <Box mb={3}>{`Websocket ${connectionStatus}`}</Box>
       <UsageData data={usageData} />
       <ButtonSet
-        buttons={apiButtons}
+        buttons={buttons}
         sendMessage={sendMessage}
         sendJsonMessage={sendJsonMessage}
         defaultSpeed={DEFAULT_SPEED}
